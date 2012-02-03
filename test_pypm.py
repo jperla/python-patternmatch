@@ -1,11 +1,21 @@
 import pypm
 from pypm import patternmatch,a,b,_
 
-patterns = {
-    ("Mult", a, b): lambda a,b: ("Num", (extract_num(evalNumeric(a)) * extract_num(evalNumeric(b)))),
-    ("Sum", a, b): lambda a,b: ("Num", (extract_num(evalNumeric(a)) + extract_num(evalNumeric(b)))),
-    ("Num", a): lambda a: ("Num", a),
-}
+def extract_num(ast):
+    assert ast[0] == 'Num'
+    return ast[1]
+
+patterns = [
+    {("Mult", a, b):    lambda a,b: ("Num", (extract_num(evalNumeric(a)) * extract_num(evalNumeric(b))))},
+    {("Sum", a, b):     lambda a,b: ("Num", (extract_num(evalNumeric(a)) + extract_num(evalNumeric(b))))},
+    {("Num", a):        lambda a: ("Num", a)},
+
+    # absolute subtract; using guards!
+    {(("AbsSub", ("Num", a), ("Num", b),),
+                        lambda a,b: a > b): lambda a,b: ("Num", (a - b))},
+    {(("AbsSub", ("Num", a), ("Num", b),),
+                        lambda a,b: b > a): lambda a,b: ("Num", (b - a))},
+]
 
 @patternmatch(patterns)
 def evalNumeric(ast):
@@ -15,16 +25,19 @@ seven = ("Sum", ("Num", 3), ("Num", 4))
 fourteen = ("Sum", seven, seven,)
 ninetyeight = ("Mult", fourteen, seven,)
 ninetyeight_again = ("Mult", seven, ("Mult", ("Num", 1), fourteen,),)
-
-def extract_num(ast):
-    assert ast[0] == 'Num'
-    return ast[1]
+ninety = ("AbsSub", ("Num", 22), ("Num", 112))
 
 def test_simple():
     assert 7 == extract_num(evalNumeric(seven))
     assert 14 == extract_num(evalNumeric(fourteen))
     assert 98 == extract_num(evalNumeric(ninetyeight))
     assert 98 == extract_num(evalNumeric(ninetyeight_again))
+    assert 90 == extract_num(evalNumeric(ninety))
+
+
+
+
+
 
 class NoProperExceptionRaised(Exception):
     pass
