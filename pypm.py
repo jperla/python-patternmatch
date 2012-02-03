@@ -41,7 +41,12 @@ d = PatternMatchVar('d')
 e = PatternMatchVar('e')
 f = PatternMatchVar('f')
 _ = PatternMatchVar('_')
-UnknownPattern = Exception('Unknown pattern')
+
+class UnknownPattern(Exception):
+    pass
+
+class ASTException(Exception):
+    pass
 
 
 def pattern_does_match(pattern, ast):
@@ -74,6 +79,13 @@ def check_patterns(patterns):
                 raise Exception('Patterns must be tuples of strings and PatternMatchVars.'
                                 'Did you remember to do "from pypm import a,b,c" ?: %s' % t)
 
+def check_ast(ast):
+    """Accepts an ast which is a recursive n-tuple.
+        Ensures that it is or throws exceptions.
+    """
+    if not isinstance(ast, tuple):
+        raise ASTException('AST must be a recursive n-tuple')
+
 def patternmatch(patterns, run_func=False):
     """Accepts a dictionary representing patterns.  
             The dictionary has keys which are n-tuples representing parts of ASTs.
@@ -87,6 +99,7 @@ def patternmatch(patterns, run_func=False):
     check_patterns(patterns)
     def decorator(f):
         def recognize_and_run(ast):
+            check_ast(ast)
             for p in patterns:
                 if pattern_does_match(p, ast):
                     # note: this does not work for 
@@ -97,7 +110,7 @@ def patternmatch(patterns, run_func=False):
                 if run_func:
                     return f(ast)
                 else:
-                    raise UnknownPattern
+                    raise UnknownPattern()
         return recognize_and_run
     return decorator
 
