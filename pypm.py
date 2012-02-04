@@ -268,7 +268,7 @@ if __name__=='__main__':
 
 
     import pyparse
-    s = '5 + 323 * 12 - 18'
+    s = '5 + 323 - 12 * 18'
     w = pyparse.whitespace_tokenize(s)
     ast,_ = pyparse.parse(pyparse.simple_expression, w, whole=True)
     

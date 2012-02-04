@@ -35,8 +35,8 @@ big = ('EXPR',
   ('EXPR',
    ('OP',
     ('Num', 323),
-    '*',
-    ('EXPR', ('OP', ('Num', 12), '-', ('EXPR', ('Num', 18))))))))
+    '-',
+    ('EXPR', ('OP', ('Num', 12), '*', ('EXPR', ('Num', 18))))))))
 
 def is_in_ast(ast, token):
     if ast == token:
@@ -75,8 +75,8 @@ def test_simple():
 
 def test_varargs():
     @patternmatch([
-        {('OP', ('Num', a), '-', ('EXPR', ('Num', b))): 
-                    lambda a,b: ('Num', a - b)},
+        {('OP', ('Num', a), '*', ('EXPR', ('Num', b))): 
+                    lambda a,b: ('Num', a * b)},
         {(anynode, starargs): 
                     lambda anynode,starargs: recurse_ast(evalMinus, anynode, starargs)},
     ])
@@ -85,10 +85,10 @@ def test_varargs():
 
     answer = evalMinus(big)
  
-    assert not is_in_ast(answer, '-')
+    assert not is_in_ast(answer, '*')
     assert is_in_ast(answer, '+')
 
-    assert is_in_ast(answer, -6)
+    assert is_in_ast(answer, 216)
     assert is_in_ast(answer, 5)
     assert is_in_ast(answer, ('Num', 5))
     assert not is_in_ast(answer, (5,))
