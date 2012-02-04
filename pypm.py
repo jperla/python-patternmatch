@@ -285,7 +285,6 @@ if __name__=='__main__':
     def evalSimpleExpression(ast):
         pass
 
-    # todo: more checking of anynode, starargs
     patterns = [
         {('OP', ('Num', a), '-', ('EXPR', ('Num', b))): 
                     lambda a,b: ('Num', a - b)},

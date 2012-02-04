@@ -95,7 +95,6 @@ def whitespace_tokenize(s):
     return [c for c in s if c != ' ']
 
 # todo: nested parentheses / brackets etc
-# todo: proper tests
 
 simple_expression = Recursive()
 
